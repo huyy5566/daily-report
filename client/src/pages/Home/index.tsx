@@ -66,7 +66,7 @@ export default function Home() {
           <Input placeholder="请输入收件邮箱(若多个收件邮箱, 请用空格分隔)" />
         </Form.Item>
         <Form.Item name={['basic', 'cc']} label="抄送邮箱" rules={requiredRule}>
-          <Input placeholder="请输入抄送邮箱(若多个抄送邮箱, 请用空格分隔)" />
+          <Input placeholder="请输入抄送邮箱(若多个抄送邮箱, 请用空格分隔, 建议也把自己的企业邮箱加上)" />
         </Form.Item>
         <Divider>项目信息</Divider>
         <Form.Item name={['project', 'name']} label="项目名称" rules={requiredRule}>

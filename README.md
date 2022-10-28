@@ -12,7 +12,7 @@ node v16
 4, 启动项目:
 启动服务端: sh backend.sh
 启动客户端: sh client.sh
-5, 打开 http://localhost:3333 填写工作内容, 发送邮件
+5, 打开 http://localhost:5555 填写工作内容, 发送邮件
 
 注意:
 基本信息需要输入, 一次发送之后, 会保存到 localStorage 中, 以后会自动回填,
