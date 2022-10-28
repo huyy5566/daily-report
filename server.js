@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
-const Hapi = require('@hapi/hapi');
-const nodemailer = require('nodemailer');
+const Hapi = require("@hapi/hapi");
+const nodemailer = require("nodemailer");
 
 const tableData = [
-  ['姓名', '', '项目名称', '', '工作日期', [new Date().toLocaleDateString()]],
-  ['甲方直属领导', '', '工作模式', '', '合计办公时长', '8h'],
-  ['工作内容', ''],
+  ["姓名", "", "项目名称", "", "工作日期", [new Date().toLocaleDateString()]],
+  ["甲方直属领导", "", "工作模式", "", "合计办公时长", "8h"],
+  ["工作内容", ""],
 ];
 const tableStyle = `border-spacing: 0;
         border-top: 1px solid black;
@@ -28,70 +28,75 @@ const getHtml = (data) => {
 
   let tableHtml = `<table style='${tableStyle}'>`;
   // first row;
-  tableHtml += '<tr>';
+  tableHtml += "<tr>";
   for (let item of curTableData[0]) {
     tableHtml += `<td style='${firstRowTdStyle}'>${item}</td>`;
   }
-  tableHtml += '</tr>';
+  tableHtml += "</tr>";
   // second row;
-  tableHtml += '<tr>';
+  tableHtml += "<tr>";
   for (let item of curTableData[1]) {
     tableHtml += `<td style='${otherRowTdStyle}'>${item}</td>`;
   }
-  tableHtml += '</tr>';
+  tableHtml += "</tr>";
   // third row;
-  tableHtml += '<tr>';
+  tableHtml += "<tr>";
   tableHtml += `<td style='${otherRowTdStyle}'>${curTableData[2][0]}</td>`;
   tableHtml += `<td colspan='5' style='${otherRowTdStyle}'>${report.content}</td>`;
-  tableHtml += '</tr>';
+  tableHtml += "</tr>";
 
   return tableHtml;
 };
 
 const server = Hapi.server({
   port: 5000,
-  host: 'localhost',
+  host: "localhost",
 });
 
 server.route({
-  method: ['POST'],
-  path: '/api/sendEmail',
-  handler: (request) => {
+  method: ["POST"],
+  path: "/api/sendEmail",
+  handler: async (request) => {
     const html = getHtml(request.payload);
-    return sendEmailController(request.payload.basic, html);
+    const ret = await sendEmailController(request.payload.basic, html);
+    return ret;
   },
 });
 
 const sendEmailController = (basic, html) => {
   let result = true;
   const transport = nodemailer.createTransport({
-    host: 'stmp.qq.com',
-    service: 'qq',
+    host: "stmp.qq.com",
+    service: "qq",
     port: 587,
     secure: false,
     auth: {
-      user: '2295790516@qq.com',
-      pass: 'zbwpqoxvveqwebii',
+      user: basic.from.trim(),
+      pass: basic.pass.trim(),
     },
   });
   const subject = `${new Date().toLocaleDateString()}-${basic.user}-日报`;
   const mailOptions = {
     from: basic.from,
-    to: basic.to,
+    to: basic.to.split(" ").filter((item) => item),
+    cc: basic.cc.split(" ").filter((item) => item),
     subject,
     html,
   };
-  transport.sendMail(mailOptions, (err, response) => {
-    'use strict';
-    if (err) {
-      result = false;
-      console.log('err: ', err);
-    } else {
-      console.log('sendEmail success');
-    }
-    transport.close();
+
+  return new Promise((resolve, reject) => {
+    transport.sendMail(mailOptions, (err, response) => {
+      "use strict";
+      if (err) {
+        resolve({ success: false, message: err });
+        console.log("err: ", err);
+      } else {
+        resolve({ success: true, message: "邮件发送成功" });
+        console.log("sendEmail success");
+      }
+      transport.close();
+    });
   });
-  return result;
 };
 
 const init = async () => {
@@ -99,7 +104,7 @@ const init = async () => {
   console.log(`Server running at: ${server.info.uri}`);
 };
 
-process.on('unhandledRejection', (err) => {
+process.on("unhandledRejection", (err) => {
   console.log(err);
   process.exit(1);
 });

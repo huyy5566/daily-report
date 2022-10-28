@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRequest } from 'ice';
 import { useLocalStorageState } from 'ahooks';
-import { Form, Input, Button, Divider, message } from 'antd';
+import { Form, Input, Button, Divider, notification } from 'antd';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import services from './services';
@@ -32,8 +32,17 @@ export default function Home() {
   const onFinish = async (values) => {
     setState(values);
     const data = { ...values, report: { content } };
-    await sendEmailReq(data);
-    message.success('邮件发送成功!');
+    const ret = await sendEmailReq(data);
+    console.log('ret: ', ret);
+    if (ret.success) {
+      notification.success({
+        message: ret.message,
+      });
+    } else {
+      notification.error({
+        message: ret.message.response,
+      });
+    }
   };
   return (
     <div className={styles.container}>
@@ -45,11 +54,19 @@ export default function Home() {
         <Form.Item name={['basic', 'from']} label="发件邮箱" rules={requiredRule}>
           <Input placeholder="只能用qq邮箱发邮件" />
         </Form.Item>
+        <Form.Item
+          tooltip="参考: https://service.mail.qq.com/cgi-bin/help?subtype=1&&no=1001256&&id=28"
+          name={['basic', 'pass']}
+          label="发件邮箱stmp授权码"
+          rules={requiredRule}
+        >
+          <Input placeholder="请输入发件邮箱stmp授权码" />
+        </Form.Item>
         <Form.Item name={['basic', 'to']} label="收件邮箱" rules={requiredRule}>
-          <Input placeholder="请输入收件邮箱(若多个收件邮箱, 请用逗号分隔)" />
+          <Input placeholder="请输入收件邮箱(若多个收件邮箱, 请用空格分隔)" />
         </Form.Item>
         <Form.Item name={['basic', 'cc']} label="抄送邮箱" rules={requiredRule}>
-          <Input placeholder="请输入抄送邮箱(若多个抄送邮箱, 请用逗号分隔)" />
+          <Input placeholder="请输入抄送邮箱(若多个抄送邮箱, 请用空格分隔)" />
         </Form.Item>
         <Divider>项目信息</Divider>
         <Form.Item name={['project', 'name']} label="项目名称" rules={requiredRule}>
