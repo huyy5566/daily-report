@@ -77,7 +77,7 @@ export default function Home() {
               label="发件QQ邮箱stmp授权码"
               rules={requiredRule}
             >
-              <Input placeholder="请输入发件邮箱stmp授权码" />
+              <Input placeholder="请输入发件QQ邮箱stmp授权码" />
             </Form.Item>
           </Col>
         </Row>
