@@ -5,7 +5,7 @@ const nodemailer = require("nodemailer");
 
 const tableData = [
   ["姓名", "", "项目名称", "", "工作日期", [new Date().toLocaleDateString()]],
-  ["甲方直属领导", "", "工作模式", "", "合计办公时长", "8h"],
+  ["甲方直属领导", "", "工作模式", "", "合计办公时长", ""],
   ["工作内容", ""],
 ];
 const tableStyle = `border-spacing: 0;
@@ -25,6 +25,7 @@ const getHtml = (data) => {
   curTableData[0][3] = project.name;
   curTableData[1][1] = project.leader;
   curTableData[1][3] = project.mode;
+  curTableData[1][5] = project.hour;
 
   let tableHtml = `<table style='${tableStyle}'>`;
   // first row;
