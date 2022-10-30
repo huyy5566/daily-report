@@ -67,7 +67,6 @@ server.route({
 
 const sendEmailController = (data, html) => {
   const { basic, report } = data;
-  let result = true;
   const transport = nodemailer.createTransport({
     host: "stmp.qq.com",
     service: "qq",
