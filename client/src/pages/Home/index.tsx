@@ -2,8 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useRequest } from 'ice';
 import { useLocalStorageState } from 'ahooks';
-import { Form, Input, Button, Divider, notification, Row, Col } from 'antd';
+import { Form, Input, DatePicker, Button, Divider, notification, Row, Col } from 'antd';
 import ReactQuill from 'react-quill';
+import moment from 'moment';
 import 'react-quill/dist/quill.snow.css';
 import services from './services';
 import styles from './index.module.css';
@@ -20,19 +21,30 @@ const requiredRule = [
 export default function Home() {
   const { loading, request: sendEmailReq } = useRequest(services.sendEmailApi);
   const [state, setState] = useLocalStorageState(DailyReportKey);
-  const [content, setContent] = useState('');
 
   const [form] = Form.useForm();
   useEffect(() => {
     if (state) {
-      form.setFieldsValue(state);
+      const formNewState: any = { ...state };
+      formNewState.report = {
+        date: moment(),
+        hour: '8',
+      };
+      form.setFieldsValue(formNewState);
     }
   }, [state]);
 
   const onFinish = async (values) => {
-    setState(values);
-    const data = { ...values, report: { content } };
-    const ret = await sendEmailReq(data);
+    console.log('values: ', values);
+    setState({
+      basic: values.basic,
+      project: values.project,
+    });
+
+    values.report.date = moment(values.date).format('YYYY/MM/DD');
+    debugger;
+
+    const ret = await sendEmailReq(values);
     if (ret.success) {
       notification.success({
         message: ret.message,
@@ -81,32 +93,43 @@ export default function Home() {
             </Form.Item>
           </Col>
         </Row>
-
-        <Divider>项目信息</Divider>
         <Row gutter={20}>
-          <Col span={6}>
+          <Col span={8}>
             <Form.Item name={['project', 'name']} label="项目名称" rules={requiredRule}>
               <Input placeholder="请输入项目名称" />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={8}>
             <Form.Item name={['project', 'leader']} label="甲方领导" rules={requiredRule}>
               <Input placeholder="请输入领导姓名" />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={8}>
             <Form.Item name={['project', 'mode']} label="工作模式" rules={requiredRule}>
               <Input placeholder="请输入工作模式(现场 或 远程)" />
             </Form.Item>
           </Col>
-          <Col span={6}>
-            <Form.Item name={['project', 'hour']} label="工作时长" rules={requiredRule}>
+        </Row>
+        <Divider>日报信息</Divider>
+        <Row gutter={20}>
+          <Col span={8}>
+            <Form.Item name={['report', 'date']} label="日报日期" rules={requiredRule}>
+              <DatePicker style={{ width: '100%' }} />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item name={['report', 'hour']} label="工作时长" rules={requiredRule}>
               <Input placeholder="请输入工作时长(如: 8)" />
             </Form.Item>
           </Col>
         </Row>
-        <Divider>日报内容</Divider>
-        <ReactQuill style={{ height: 200 }} theme="snow" value={content} onChange={setContent} />
+        <Row gutter={20}>
+          <Col span={24}>
+            <Form.Item name={['report', 'content']} label="工作内容" rules={requiredRule}>
+              <ReactQuill style={{ height: 150 }} theme="snow" />
+            </Form.Item>
+          </Col>
+        </Row>
         <Form.Item style={{ marginTop: 80 }}>
           <Button loading={loading} htmlType="submit" type="primary" block size="large">
             发送

@@ -4,7 +4,7 @@ const Hapi = require("@hapi/hapi");
 const nodemailer = require("nodemailer");
 
 const tableData = [
-  ["姓名", "", "项目名称", "", "工作日期", [new Date().toLocaleDateString()]],
+  ["姓名", "", "项目名称", "", "工作日期", ""],
   ["甲方直属领导", "", "工作模式", "", "合计办公时长", ""],
   ["工作内容", ""],
 ];
@@ -19,13 +19,14 @@ const firstRowTdStyle = `border-right: 1px solid black;
 const otherRowTdStyle = `border-right: 1px solid black; border-bottom: 1px solid black`;
 
 const getHtml = (data) => {
-  const curTableData = JSON.parse(JSON.stringify(tableData));
   const { basic, project, report } = data;
+  const curTableData = JSON.parse(JSON.stringify(tableData));
   curTableData[0][1] = basic.user;
   curTableData[0][3] = project.name;
+  curTableData[0][5] = report.date;
   curTableData[1][1] = project.leader;
   curTableData[1][3] = project.mode;
-  curTableData[1][5] = project.hour;
+  curTableData[1][5] = report.hour;
 
   let tableHtml = `<table style='${tableStyle}'>`;
   // first row;
@@ -59,12 +60,13 @@ server.route({
   path: "/api/sendEmail",
   handler: async (request) => {
     const html = getHtml(request.payload);
-    const ret = await sendEmailController(request.payload.basic, html);
+    const ret = await sendEmailController(request.payload, html);
     return ret;
   },
 });
 
-const sendEmailController = (basic, html) => {
+const sendEmailController = (data, html) => {
+  const { basic, report } = data;
   let result = true;
   const transport = nodemailer.createTransport({
     host: "stmp.qq.com",
@@ -76,7 +78,7 @@ const sendEmailController = (basic, html) => {
       pass: basic.pass.trim(),
     },
   });
-  const subject = `${new Date().toLocaleDateString()}-${basic.user}-日报`;
+  const subject = `${report.date}-${basic.user}-日报`;
   const mailOptions = {
     from: basic.from,
     to: basic.to.split(" ").filter((item) => item),
