@@ -66,7 +66,7 @@ export default function Home() {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name={['basic', 'from']} label="发件邮箱" rules={requiredRule}>
+            <Form.Item name={['basic', 'from']} label="发件QQ邮箱" rules={requiredRule}>
               <Input placeholder="只能用qq邮箱发邮件" />
             </Form.Item>
           </Col>
@@ -74,7 +74,7 @@ export default function Home() {
             <Form.Item
               tooltip="参考: https://service.mail.qq.com/cgi-bin/help?subtype=1&&no=1001256&&id=28"
               name={['basic', 'pass']}
-              label="发件邮箱stmp授权码"
+              label="发件QQ邮箱stmp授权码"
               rules={requiredRule}
             >
               <Input placeholder="请输入发件邮箱stmp授权码" />
